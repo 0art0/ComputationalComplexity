@@ -1,5 +1,7 @@
 import Lean
 
+open Lean Elab Command Term
+
 /-
 
 A sample program should look like:
@@ -41,7 +43,11 @@ syntax "push_front" "(" list "," int ")" : list
 syntax "push_back" "(" list "," int ")" : list
 
 -- an alternative would be `syntax "[" value,* "]" : value
-syntax value := unit <|> bool <|> int <|> list
+declare_syntax_cat value
+syntax:80 int : value
+syntax:80 bool : value
+syntax:80 list : value
+syntax:80 ident : value
 
 declare_syntax_cat type
 syntax "unit" : type
@@ -56,20 +62,21 @@ syntax typed_ident := ident ":" type
 -- syntax "(" value ":" type ")" : typed_value
 
 declare_syntax_cat line
-syntax:36 ("let")? ("mut")? ident (":" type)? ":=" value : line
-syntax (name := return_line) "return" value : line
+syntax ("let")? ("mut")? ident (":" type)? ":=" value ";" : line
+syntax (name := return_line) "return" value ";" : line
 syntax (name := block) "{" line* "}" : line
 syntax (name := for_loop) "for" ident "in" "iter(" list ")" block : line
 syntax (name := definition_line) "def" ident "("typed_ident,* ")" ":" "->" type block : line
 
-syntax (name := frEb) "```fr∃b" ppLine line ppLine "```" : command
+elab (name := frEb) "```fr∃b" ppLine line ppLine "```" : command => do
+ logInfo s!"Not implemented!"
 
--- ```fr∃b
--- def sum (arr : [int]) : -> int {
---   let mut sum : int := 0
---   for elem in iter(arr) {
---     sum := sum + elem
---   }
---   return sum;
--- }
--- ```
+```fr∃b
+def sum (arr : [int]) : -> int {
+  let mut sum : int := 0;
+  for elem in iter(arr) {
+    sum := sum + elem;
+  }
+  return sum;
+}
+```
